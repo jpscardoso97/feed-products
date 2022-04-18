@@ -3,46 +3,33 @@
 using System.Text;
 using Data.Dto;
 using Data.Factory;
-using Microsoft.Extensions.Hosting;
+using Miscellaneous.Enums;
 
-public class ProductsImportService : IHostedService, IDisposable
+public class ProductsImportService : IProductsImportService
 {
     private readonly IProductsProvidersFactory _productsProvidersFactory;
-    
-    private Timer _timer = null!;
     
     public ProductsImportService(IProductsProvidersFactory productsProvidersFactory)
     {
         _productsProvidersFactory = productsProvidersFactory;
     }
 
+    public async Task ImportProducts(string filepath, DataProvider dataProvider)
+    {
+        ValidateInput(filepath);
+        var provider = _productsProvidersFactory.GetProvider(dataProvider);
+        var importedProducts = await provider.Import();
+
+        foreach (var product in importedProducts)
+        {
+            PrintToConsole(product);
+        }
+    }
     
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task ImportProducts(string filepath)
     {
-        _timer = new Timer(StartImport, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
+        ValidateInput(filepath);
         
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        _timer?.Change(Timeout.Infinite, 0);
-
-        return Task.CompletedTask;
-    }
-
-    public void Dispose()
-    {
-        _timer?.Dispose();
-    }
-
-    public void StartImport(object state)
-    {
-        _ = this.ImportProducts();
-    }
-
-    public async Task ImportProducts()
-    {
         var providers = _productsProvidersFactory.GetProviders();
         var providerImportTasks = new List<Task<IEnumerable<Product>>>();
 
@@ -77,5 +64,13 @@ public class ProductsImportService : IHostedService, IDisposable
         }
         
         Console.Out.WriteLine($"Name: {product.Name}; Categories: {categories}");
+    }
+
+    private static void ValidateInput(string filepath)
+    {
+        if (string.IsNullOrWhiteSpace(filepath))
+        {
+            Console.Out.WriteLine("Invalid source provided");
+        }
     }
 }
