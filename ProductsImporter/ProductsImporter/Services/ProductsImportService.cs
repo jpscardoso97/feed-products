@@ -14,28 +14,31 @@ public class ProductsImportService : IProductsImportService
         _productsProvidersFactory = productsProvidersFactory;
     }
 
-    public async Task ImportProducts(string filepath, DataProvider dataProvider)
+    public async Task ImportProducts(string source, DataProvider dataProvider)
     {
-        ValidateInput(filepath);
+        ValidateInput(source);
         var provider = _productsProvidersFactory.GetProvider(dataProvider);
-        var importedProducts = await provider.Import();
+        var importedProducts = await provider.Import(source);
 
-        foreach (var product in importedProducts)
+        if (importedProducts != null)
         {
-            PrintToConsole(product);
+            foreach (var product in importedProducts)
+            {
+                PrintToConsole(product);
+            }
         }
     }
     
-    public async Task ImportProducts(string filepath)
+    public async Task ImportProducts(string source)
     {
-        ValidateInput(filepath);
+        ValidateInput(source);
         
         var providers = _productsProvidersFactory.GetProviders();
         var providerImportTasks = new List<Task<IEnumerable<Product>>>();
 
         foreach (var provider in providers)
         {
-            providerImportTasks.Add(provider.Import());
+            providerImportTasks.Add(provider.Import(source));
         }
         
         await Task.WhenAll(providerImportTasks);

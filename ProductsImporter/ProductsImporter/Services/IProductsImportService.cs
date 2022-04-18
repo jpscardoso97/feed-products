@@ -4,7 +4,7 @@ using Miscellaneous.Enums;
 
 public interface IProductsImportService
 {
-    Task ImportProducts(string filepath, DataProvider dataProvider);
+    Task ImportProducts(string source, DataProvider dataProvider);
     
-    Task ImportProducts(string filepath);
+    Task ImportProducts(string source);
 }

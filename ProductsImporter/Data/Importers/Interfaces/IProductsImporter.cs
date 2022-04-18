@@ -4,5 +4,5 @@ using Data.Dto;
 
 public interface IProductsImporter
 {
-    Task<IEnumerable<Product>> Import();
+    Task<IEnumerable<Product>> Import(string source);
 }

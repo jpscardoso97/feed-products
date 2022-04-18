@@ -18,15 +18,12 @@ public class ProductsProvidersFactory : IProductsProvidersFactory
 
     public IProductsImporter GetProvider(DataProvider provider)
     {
-        switch (provider)
+        return provider switch
         {
-            case DataProvider.Capterra:
-                return _capterraImporter;
-            case DataProvider.SoftwareAdvice:
-                return _softwareAdviceImporter;
-            default:
-                throw new NotSupportedException("No compatible provider was found");
-        }
+            DataProvider.Capterra => _capterraImporter,
+            DataProvider.SoftwareAdvice => _softwareAdviceImporter,
+            _ => throw new NotSupportedException("No compatible provider was found")
+        };
     }
 
     public IEnumerable<IProductsImporter> GetProviders()

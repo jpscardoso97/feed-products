@@ -22,6 +22,13 @@ public class CapterraImportCmd
     
     public async Task OnExecuteAsync(CommandLineApplication app)
     {
-        await _productsImportService.ImportProducts(Filepath, DataProvider.Capterra);
+        try
+        {
+            await _productsImportService.ImportProducts(Filepath, DataProvider.Capterra);
+        }
+        catch (Exception e)
+        {
+            app.Error.WriteLine(e.Message);
+        }
     }
 }
