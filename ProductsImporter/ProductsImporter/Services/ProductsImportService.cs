@@ -29,7 +29,7 @@ public class ProductsImportService : IProductsImportService
         try
         {
             var provider = _productsProvidersFactory.GetProvider(dataProvider);
-            var importedProducts = await provider.Import(source);
+            var importedProducts = await provider.ImportAsync(source);
 
             if (importedProducts != null)
             {
@@ -57,7 +57,7 @@ public class ProductsImportService : IProductsImportService
 
             foreach (var provider in providers)
             {
-                providerImportTasks.Add(provider.Import(source));
+                providerImportTasks.Add(provider.ImportAsync(source));
             }
         
             await Task.WhenAll(providerImportTasks);
@@ -72,7 +72,7 @@ public class ProductsImportService : IProductsImportService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine(e.Message);
         }
     }
 

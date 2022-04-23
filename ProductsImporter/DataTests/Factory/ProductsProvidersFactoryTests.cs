@@ -1,4 +1,6 @@
-﻿namespace DataTests.Factory;
+﻿using System;
+
+namespace DataTests.Factory;
 
 using Data.Factory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,5 +28,12 @@ public class ProductsProvidersFactoryTests : MoqMeUp<ProductsProvidersFactory>
         var result = this.Build().GetProvider(DataProvider.SoftwareAdvice);
 
         Assert.IsTrue(result is SoftwareAdviceProductsImporter);
+    }
+    
+    [TestMethod]
+    public void GetProvider_UnknownProvider_ThrowsNotSupportedException()
+    {
+        // Arrange, Act and Asserts
+        Assert.ThrowsException<NotSupportedException>(() => this.Build().GetProvider((DataProvider)3));
     }
 }

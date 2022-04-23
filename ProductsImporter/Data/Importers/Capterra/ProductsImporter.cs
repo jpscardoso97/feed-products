@@ -9,19 +9,18 @@ using ProductDto = Data.Dto.Product;
 
 public class ProductsImporter : IProductsImporter
 {
-    public async Task<IEnumerable<ProductDto>> Import(string source)
+    public async Task<IEnumerable<ProductDto>> ImportAsync(string source)
     {
-        /*IEnumerable<Product> capterraProducts = new List<Product>()
-        {
-            new() { Name = "Github", Categories = new[] { "Bugs & Issue Tracking", "Development Tools" } },
-            new() { Name = "Slack", Categories = new[] { "Instant Messaging & Chat", "Web Collaboration", "Productivity" } },
-            new() { Name = "JIRA Software", Categories = new[] { "Project Management", "Project Collaboration", "Development Tools" } }
-        };*/
         if (!source.EndsWith(".yaml") && !source.EndsWith(".yml"))
         {
-            throw new Exception("Not a valid JSON file");
+            throw new Exception("Not a valid YAML file");
         }
 
+        if (!File.Exists(source))
+        {
+            throw new Exception("Source file doesn't exist");
+        }
+        
         var yamlString = await File.ReadAllTextAsync(source);
 
         var deserializer = new DeserializerBuilder().WithNamingConvention(LowerCaseNamingConvention.Instance).Build();

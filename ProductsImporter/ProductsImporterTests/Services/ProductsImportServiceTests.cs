@@ -24,14 +24,22 @@ public class ProductsImportServiceTests : MoqMeUp<ProductsImportService>
     private Mock<IProductsRepository> _productsRepositoryMock;
     private Mock<IProductsImporter> _importerMock;
 
-    private readonly Product DummyProduct = new();
+    private readonly IEnumerable<Product> DummyProducts = new List<Product>
+    {
+        new() {Name = "Freshdesk", Categories = new[] {"Customer Service", "Call Center"}},
+        new() {Name = "Zoho", Categories = new[] {"CRM", "Sales Management"}}
+    };
 
     public ProductsImportServiceTests()
     {
         _importerMock = new Mock<IProductsImporter>();
         _importerMock
-            .Setup(i => i.Import(It.IsAny<string>()))
-            .ReturnsAsync(new[] { DummyProduct });
+            .Setup(i => i.ImportAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<Product>()
+            {
+                new() { Name = "Freshdesk", Categories = new[] { "Customer Service", "Call Center" } },
+                new() { Name = "Zoho", Categories = new[] { "CRM", "Sales Management" } }
+            });
 
         _productsProvidersFactoryMock = this.Get<IProductsProvidersFactory>();
         _productsProvidersFactoryMock
@@ -112,8 +120,9 @@ public class ProductsImportServiceTests : MoqMeUp<ProductsImportService>
         await this.Build().ImportProductsFromProvider(DummyPath, It.IsAny<DataProvider>());
 
         // Assert
-        _importerMock.Verify(r => r.Import(It.IsAny<string>()), Times.Once);
+        _importerMock.Verify(r => r.ImportAsync(It.IsAny<string>()), Times.Once);
+        
         _productsRepositoryMock.Verify(r =>
-            r.SaveAsync(It.Is<IEnumerable<Product>>(l => l.Contains(DummyProduct))), Times.Once);
+            r.SaveAsync(It.Is<IEnumerable<Product>>(l => l.Count() == DummyProducts.Count())), Times.Once);
     }
 }

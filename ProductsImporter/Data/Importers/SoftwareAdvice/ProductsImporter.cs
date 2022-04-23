@@ -8,19 +8,18 @@ using ProductDto = Data.Dto.Product;
 
 public class ProductsImporter : IProductsImporter
 {
-    public async Task<IEnumerable<ProductDto>> Import(string source)
+    public async Task<IEnumerable<ProductDto>> ImportAsync(string source)
     {
-        /*IEnumerable<Product> softwareAdviceProducts = new List<Product>()
-        {
-            new() { Name = "Freshdesk", Categories = new[] { "Customer Service", "Call Center" } },
-            new() { Name = "Zoho", Categories = new[] { "CRM", "Sales Management" } }
-        };*/
-        
         try
         {
             if (!source.EndsWith(".json"))
             {
                 throw new Exception("Not a valid JSON file");
+            }
+            
+            if (!File.Exists(source))
+            {
+                throw new Exception("Source file doesn't exist");
             }
             
             using (FileStream  file = File.OpenRead(source))

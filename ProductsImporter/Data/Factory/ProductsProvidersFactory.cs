@@ -1,6 +1,6 @@
 ﻿namespace Data.Factory;
 
-using Data.Importers.Interfaces;
+using Importers.Interfaces;
 using Miscellaneous.Enums;
 using SoftwareAdviceProductsImporter = Importers.SoftwareAdvice.ProductsImporter;
 using CapterraProductsImporter = Importers.Capterra.ProductsImporter;
