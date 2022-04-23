@@ -3,77 +3,87 @@
 using System.Text;
 using Data.Dto;
 using Data.Factory;
+using Data.Repository.Interfaces;
 using Miscellaneous.Enums;
 
 public class ProductsImportService : IProductsImportService
 {
     private readonly IProductsProvidersFactory _productsProvidersFactory;
+    private readonly IProductsRepository _productsRepository;
     
-    public ProductsImportService(IProductsProvidersFactory productsProvidersFactory)
+    public ProductsImportService(
+        IProductsProvidersFactory productsProvidersFactory, 
+        IProductsRepository productsRepository)
     {
         _productsProvidersFactory = productsProvidersFactory;
+        _productsRepository = productsRepository;
     }
 
-    public async Task ImportProducts(string source, DataProvider dataProvider)
+    public async Task ImportProductsFromProvider(string source, DataProvider dataProvider)
     {
-        ValidateInput(source);
-        var provider = _productsProvidersFactory.GetProvider(dataProvider);
-        var importedProducts = await provider.Import(source);
-
-        if (importedProducts != null)
+        if (!ValidateInput(source))
         {
-            foreach (var product in importedProducts)
+            return;
+        }
+
+        try
+        {
+            var provider = _productsProvidersFactory.GetProvider(dataProvider);
+            var importedProducts = await provider.Import(source);
+
+            if (importedProducts != null)
             {
-                PrintToConsole(product);
+                await _productsRepository.SaveAsync(importedProducts);
             }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
     
     public async Task ImportProducts(string source)
     {
-        ValidateInput(source);
-        
-        var providers = _productsProvidersFactory.GetProviders();
-        var providerImportTasks = new List<Task<IEnumerable<Product>>>();
-
-        foreach (var provider in providers)
+        if (!ValidateInput(source))
         {
-            providerImportTasks.Add(provider.Import(source));
+            return;
         }
-        
-        await Task.WhenAll(providerImportTasks);
 
-        foreach (var providerImportTask in providerImportTasks)
+        try
         {
-            var providerProducts = await providerImportTask;
-            foreach (var product in providerProducts)
+            var providers = _productsProvidersFactory.GetProviders();
+            
+            var providerImportTasks = new List<Task<IEnumerable<Product>>>();
+
+            foreach (var provider in providers)
             {
-                PrintToConsole(product);
+                providerImportTasks.Add(provider.Import(source));
             }
-        }
+        
+            await Task.WhenAll(providerImportTasks);
 
-        Console.Out.WriteLine("-------------------------------------------------------");
+            foreach (var providerImportTask in providerImportTasks)
+            {
+                var providerProducts = await providerImportTask;
+                await _productsRepository.SaveAsync(providerProducts);
+            }
+
+            Console.Out.WriteLine("-------------------------------------------------------");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
-
-    private static void PrintToConsole(Product product)
+    private static bool ValidateInput(string source)
     {
-        Console.Out.WriteLine("\nImporting Product:");
-        var categories = new StringBuilder();
+        if (!string.IsNullOrWhiteSpace(source)) 
+            return true;
         
-        foreach (var c in  product.Categories)
-        {
-            categories.Append($"{c}, ");
-        }
-        
-        Console.Out.WriteLine($"Name: {product.Name}; Categories: {categories}");
-    }
+        Console.Out.WriteLine("Invalid source provided");
+            
+        return false;
 
-    private static void ValidateInput(string filepath)
-    {
-        if (string.IsNullOrWhiteSpace(filepath))
-        {
-            Console.Out.WriteLine("Invalid source provided");
-        }
     }
 }

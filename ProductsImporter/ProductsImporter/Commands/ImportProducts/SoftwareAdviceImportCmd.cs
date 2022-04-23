@@ -22,6 +22,6 @@ public class SoftwareAdviceImportCmd
     
     public async Task OnExecuteAsync(CommandLineApplication app)
     {
-        await _productsImportService.ImportProducts(Filepath, DataProvider.SoftwareAdvice);
+        await _productsImportService.ImportProductsFromProvider(Filepath, DataProvider.SoftwareAdvice);
     }
 }

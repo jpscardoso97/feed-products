@@ -1,5 +1,6 @@
 ﻿namespace Data.Repository;
 
+using System.Text;
 using Data.Dto;
 using Data.Repository.Interfaces;
 
@@ -45,11 +46,15 @@ public class ProductsRepository : IProductsRepository
 
     private static void PrintToConsole(Product product)
     {
-        Console.Out.WriteLine("\nSaving Product:");
-        Console.Out.WriteLine($"Name: {product.Name}; Categories:");
+        Console.Out.WriteLine("\nImporting Product:");
+        var categories = new StringBuilder();
+        
         foreach (var c in  product.Categories)
         {
-            Console.Out.Write($"{c}, ");
+            categories.Append($"{c}, ");
         }
+        
+        Console.Out.WriteLine($"Name: {product.Name}; Categories: {categories}");
     }
+    
 }

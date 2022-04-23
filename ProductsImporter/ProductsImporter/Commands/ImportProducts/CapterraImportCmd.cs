@@ -24,7 +24,7 @@ public class CapterraImportCmd
     {
         try
         {
-            await _productsImportService.ImportProducts(Filepath, DataProvider.Capterra);
+            await _productsImportService.ImportProductsFromProvider(Filepath, DataProvider.Capterra);
         }
         catch (Exception e)
         {
