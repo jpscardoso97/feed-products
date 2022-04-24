@@ -105,7 +105,7 @@
 
     ``` SQL
     SELECT
-        EXTRACT(YEAR FROM c.created),
+        EXTRACT(YEAR FROM c.created) AS year,
         COUNT(DISTINCT l.id) AS total_listings_clicked,
         COUNT(DISTINCT u.id) AS total_vendors_affected
     FROM
@@ -123,4 +123,16 @@
 - Please return at least: first_name, last_name, listing_names
 
     ``` SQL
-    TBD
+    SELECT
+        u.first_name,
+        u.last_name,
+        GROUP_CONCAT(l.name) as listing_names 
+    FROM
+        listings l,
+        users u
+    WHERE
+        l.user_id = u.id
+        AND u.status = 2
+    GROUP BY
+        u.id
+    ```
